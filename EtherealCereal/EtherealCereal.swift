@@ -50,7 +50,7 @@ public class EtherealCereal: NSObject {
     public func generatePublicKey(from privateKeyData: Data) -> Data {
         return self.ether.generatePublicKey(from: privateKeyData)
     }
-
+    
     public func recoverPublicKey(from message: String, signature: String) -> String {
         let messageData = message.data(using: .utf8)!
         let signatureData = self.ether.data(fromHexString: signature)
