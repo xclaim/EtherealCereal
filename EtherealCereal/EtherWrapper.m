@@ -12,6 +12,40 @@
     return [@"0x" stringByAppendingString:[address hexadecimalString]];
 }
 
+-  (NSString * _Nonnull)generatePublicKeyFromMessage:(NSData * _Nonnull)message withSignature:(NSData * _Nonnull)signature  {
+    const unsigned char *_message = (const unsigned char *)message.bytes;
+    const unsigned char *signature_bytes = (const unsigned char *)signature.bytes;
+    
+    const unsigned char *msg32 = [message sha3:256].bytes;
+
+    unsigned char signature_serialised[64];
+    
+    for (int i = 0; i < 64; i++) {
+        signature_serialised[i] = signature_bytes[i];
+    }
+    int recid = signature_bytes[64];
+
+    secp256k1_ecdsa_recoverable_signature _signature;
+    unsigned char public_key_serialized[65];
+    
+    size_t public_key_length = 65;
+    
+    secp256k1_pubkey public_key;
+    const secp256k1_context *ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
+    
+    secp256k1_ecdsa_recoverable_signature_parse_compact(ctx, &_signature,signature_serialised,recid);
+
+    secp256k1_ecdsa_recover(ctx, &public_key, &_signature, msg32);
+    
+    secp256k1_ec_pubkey_serialize(ctx, public_key_serialized, &public_key_length, &public_key, SECP256K1_EC_UNCOMPRESSED);
+    
+    NSData *publicKeyData = [[NSData dataWithBytes:public_key_serialized length:public_key_length] subdataWithRange:NSMakeRange(1, public_key_length - 1)];
+    
+    NSString *publicKeyString = [publicKeyData hexadecimalString];
+
+    return publicKeyString;
+}
+
 -  (NSData * _Nonnull)generatePublicKeyFromPrivateKey:(NSData * _Nonnull)privateKey {
     const unsigned char *private_key = (const unsigned char *)privateKey.bytes;
 
@@ -61,6 +95,28 @@
     NSString *signatureString = [signatureData hexadecimalString];
 
     return signatureString;
+}
+
+- (NSData *)dataFromHexString:(NSString *) string {
+    if([string length] % 2 == 1){
+        string = [@"0"stringByAppendingString:string];
+    }
+    
+    const char *chars = [string UTF8String];
+    int i = 0, len = (int)[string length];
+    
+    NSMutableData *data = [NSMutableData dataWithCapacity:len / 2];
+    char byteChars[3] = {'\0','\0','\0'};
+    unsigned long wholeByte;
+    
+    while (i < len) {
+        byteChars[0] = chars[i++];
+        byteChars[1] = chars[i++];
+        wholeByte = strtoul(byteChars, NULL, 16);
+        [data appendBytes:&wholeByte length:1];
+    }
+    return data;
+    
 }
 
 @end

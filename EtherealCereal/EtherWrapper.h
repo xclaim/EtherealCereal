@@ -20,6 +20,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface EtherWrapper : NSObject
 
+/**
+ Derive a public key from a signed message.
+ 
+ @param message The message.
+ @param signature The signature of the message.
+ @return The generated public key, as raw data.
+ */
+- (NSString *)generatePublicKeyFromMessage:(NSData *)message withSignature:(NSData *)signature; //NS_SWIFT_NAME(generatePublicKey(fromMessage:with:));
+
 
 /**
  Derive a public key from a given private key (in raw data format).
@@ -48,6 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
  @return A 130 character hexadecimal string. This is the signature for a given message. If you have this and the original message, you can recover an address. Use it to guaratee the message originator.
  */
 - (NSString *)signMessage:(NSData *)message withKey:(NSData *)privateKey withHashing:(BOOL)withHashing NS_SWIFT_NAME(sign(message:with:withHashing:));
+
+- (NSData *)dataFromHexString:(NSString *) string;
 
 @end
 

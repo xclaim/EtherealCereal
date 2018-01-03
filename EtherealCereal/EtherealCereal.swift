@@ -51,6 +51,16 @@ public class EtherealCereal: NSObject {
         return self.ether.generatePublicKey(from: privateKeyData)
     }
 
+    public func recoverPublicKey(from message: String, signature: String) -> String {
+        let messageData = message.data(using: .utf8)!
+        let signatureData = self.ether.data(fromHexString: signature)
+        //let signatureData = signature.data(using: .utf8)!
+        return generatePublicKey(from: messageData, signature: signatureData)
+    }
+    
+    public func generatePublicKey(from message: Data, signature: Data) -> String {
+        return self.ether.generatePublicKey(fromMessage:message,withSignature:signature)
+    }
 
     /// Cryptocurrencies require a very safely kept private key to sign transactions.
     /// This is used to guarantee that the user is who they say they are.
