@@ -74,7 +74,8 @@ public class EtherealCereal: NSObject {
 
         // This creates the private key inside a block, result is of internal type ResultType.
         // We just need to check if it's 0 to ensure that there were no errors.
-        let result = privateKey.withUnsafeMutableBytes { mutableBytes in
+        var localKey = privateKey
+        let result = localKey.withUnsafeMutableBytes { mutableBytes in
             SecRandomCopyBytes(kSecRandomDefault, privateKey.count, mutableBytes)
         }
 
